@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabase'
 
 const quotes = [
@@ -12,9 +12,9 @@ const quotes = [
 ]
 
 const themes = {
-  terra: { primary: '#C4673A', light: '#FAECE7', header: '#C4673A' },
-  sage:  { primary: '#7A8C6E', light: '#EAF0E5', header: '#7A8C6E' },
-  gold:  { primary: '#BA7517', light: '#FFF8EE', header: '#8C6430' },
+  terra: { primary: '#C4673A', light: '#FAECE7' },
+  sage:  { primary: '#7A8C6E', light: '#EAF0E5' },
+  gold:  { primary: '#BA7517', light: '#FFF8EE' },
 }
 
 export default function Journal({ session }) {
@@ -26,6 +26,10 @@ export default function Journal({ session }) {
   })
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [photos, setPhotos] = useState({ grateful: [], great: [] })
+  const [uploading, setUploading] = useState(false)
+  const gratefulFileRef = useRef(null)
+  const greatFileRef = useRef(null)
   const today = new Date().toDateString()
   const quote = quotes[new Date().getDate() % quotes.length]
 
@@ -97,6 +101,41 @@ export default function Journal({ session }) {
 
   const signOut = async () => { await supabase.auth.signOut() }
 
+  const uploadPhoto = async (file, section) => {
+    setUploading(true)
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${session.user.id}/${section}/${Date.now()}.${fileExt}`
+    const { error } = await supabase.storage
+      .from('photos')
+      .upload(fileName, file)
+    if (error) {
+      alert('Upload failed: ' + error.message)
+    } else {
+      const { data: urlData } = supabase.storage
+        .from('photos')
+        .getPublicUrl(fileName)
+      setPhotos(prev => ({
+        ...prev,
+        [section]: [...prev[section], urlData.publicUrl]
+      }))
+    }
+    setUploading(false)
+  }
+
+  const handleFileChange = async (e, section) => {
+    const files = Array.from(e.target.files)
+    for (const file of files) {
+      await uploadPhoto(file, section)
+    }
+  }
+
+  const removePhoto = (section, index) => {
+    setPhotos(prev => ({
+      ...prev,
+      [section]: prev[section].filter((_, i) => i !== index)
+    }))
+  }
+
   const theme = themes[profile?.theme || 'terra']
   const days = ['S','M','T','W','T','F','S']
   const todayIdx = new Date().getDay()
@@ -137,7 +176,6 @@ export default function Journal({ session }) {
     <div style={{ background: '#FAF6F0', minHeight: '100vh', fontFamily: 'Nunito, sans-serif' }}>
       <div style={{ maxWidth: '420px', margin: '0 auto' }}>
 
-        {/* Header */}
         <div style={{ background: theme.primary, color: 'white', padding: '1.25rem 1.25rem 1rem', borderRadius: '0 0 24px 24px', marginBottom: '1.25rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
             <div>
@@ -158,13 +196,11 @@ export default function Journal({ session }) {
             </div>
           </div>
 
-          {/* Quote */}
           <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '14px', padding: '10px 14px' }}>
             <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '14px', fontStyle: 'italic', lineHeight: 1.5 }}>"{quote.text}"</div>
             <div style={{ fontSize: '11px', opacity: 0.75, marginTop: '4px' }}>— {quote.author}</div>
           </div>
 
-          {/* Streak dots */}
           <div style={{ display: 'flex', gap: '5px', marginTop: '0.75rem' }}>
             {days.map((d, i) => (
               <div key={i} style={{
@@ -177,7 +213,6 @@ export default function Journal({ session }) {
             ))}
           </div>
 
-          {/* Theme switcher */}
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '0.75rem', justifyContent: 'flex-end' }}>
             <span style={{ fontSize: '11px', opacity: 0.7 }}>theme</span>
             {Object.entries(themes).map(([key, val]) => (
@@ -190,7 +225,6 @@ export default function Journal({ session }) {
           </div>
         </div>
 
-        {/* Tabs */}
         <div style={{ display: 'flex', gap: '6px', padding: '0 1.25rem', marginBottom: '1rem', overflowX: 'auto' }}>
           {[
             { id: 'grateful', label: 'Grateful' },
@@ -209,7 +243,6 @@ export default function Journal({ session }) {
           ))}
         </div>
 
-        {/* Sections */}
         <div style={{ padding: '0 1.25rem' }}>
 
           {tab === 'grateful' && (
@@ -218,6 +251,21 @@ export default function Journal({ session }) {
               <div style={{ ...sectionTitle, color: theme.primary }}>What I'm grateful for</div>
               <textarea value={entry.grateful} onChange={e => setEntry({ ...entry, grateful: e.target.value })}
                 placeholder="Today I'm grateful for..." rows={6} style={textareaStyle} />
+              <div style={{ marginTop: '12px' }}>
+                <div style={{ fontSize: '11px', fontWeight: '600', color: '#7A6558', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Add to your story</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                  {photos.grateful.map((url, i) => (
+                    <div key={i} style={{ position: 'relative', width: '72px', height: '72px' }}>
+                      <img src={url} style={{ width: '72px', height: '72px', borderRadius: '12px', objectFit: 'cover' }} />
+                      <button onClick={() => removePhoto('grateful', i)} style={{ position: 'absolute', top: '-6px', right: '-6px', width: '18px', height: '18px', borderRadius: '50%', background: theme.primary, color: 'white', border: 'none', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                    </div>
+                  ))}
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', border: '1.5px dashed #D8CFC8', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', color: '#7A6558', fontFamily: 'Nunito, sans-serif', fontWeight: '600' }}>
+                  📷 {uploading ? 'Uploading...' : 'Add a photo'}
+                  <input type="file" accept="image/*" multiple onChange={e => handleFileChange(e, 'grateful')} style={{ display: 'none' }} />
+                </label>
+              </div>
             </div>
           )}
 
@@ -261,6 +309,21 @@ export default function Journal({ session }) {
               <div style={{ ...sectionTitle, color: theme.primary }}>Great things that happened today</div>
               <textarea value={entry.great} onChange={e => setEntry({ ...entry, great: e.target.value })}
                 placeholder="Something wonderful..." rows={6} style={textareaStyle} />
+              <div style={{ marginTop: '12px' }}>
+                <div style={{ fontSize: '11px', fontWeight: '600', color: '#7A6558', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Capture the moment</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                  {photos.great.map((url, i) => (
+                    <div key={i} style={{ position: 'relative', width: '72px', height: '72px' }}>
+                      <img src={url} style={{ width: '72px', height: '72px', borderRadius: '12px', objectFit: 'cover' }} />
+                      <button onClick={() => removePhoto('great', i)} style={{ position: 'absolute', top: '-6px', right: '-6px', width: '18px', height: '18px', borderRadius: '50%', background: theme.primary, color: 'white', border: 'none', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                    </div>
+                  ))}
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', border: '1.5px dashed #D8CFC8', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', color: '#7A6558', fontFamily: 'Nunito, sans-serif', fontWeight: '600' }}>
+                  📷 {uploading ? 'Uploading...' : 'Add a photo'}
+                  <input type="file" accept="image/*" multiple onChange={e => handleFileChange(e, 'great')} style={{ display: 'none' }} />
+                </label>
+              </div>
             </div>
           )}
 
