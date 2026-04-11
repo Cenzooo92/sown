@@ -54,12 +54,20 @@ Accomplished: ${(e.accomplish || []).join(', ')}
       })
 
       const parsed = await response.json()
-      setInsights(parsed)
+      if (parsed.error) {
+        setInsights([{
+          tag: 'Error',
+          title: 'API Error',
+          text: parsed.error
+        }])
+      } else {
+        setInsights(parsed)
+      }
     } catch (e) {
       setInsights([{
         tag: 'Error',
         title: 'Something went wrong',
-        text: 'Unable to generate insights right now. Please try again later.'
+        text: e.message || 'Unable to generate insights right now. Please try again later.'
       }])
     }
 
