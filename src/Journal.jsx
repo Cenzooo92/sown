@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Habits from './Habits'
 import { supabase } from './supabase'
 
 const quotes = [
@@ -225,13 +226,14 @@ export default function Journal({ session }) {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '6px', padding: '0 1.25rem', marginBottom: '1rem', overflowX: 'auto' }}>
+       <div style={{ display: 'flex', gap: '6px', padding: '0 1.25rem', marginBottom: '1rem', overflowX: 'auto' }}>
           {[
             { id: 'grateful', label: 'Grateful' },
             { id: 'accomplish', label: "Today's goals" },
             { id: 'affirmations', label: 'I am...' },
             { id: 'great', label: 'Great moments' },
             { id: 'letgo', label: 'Let go' },
+            { id: 'habits', label: '🌱 Habits' },
           ].map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
               flexShrink: 0, padding: '7px 14px', borderRadius: '20px', fontSize: '12px',
@@ -327,7 +329,8 @@ export default function Journal({ session }) {
             </div>
           )}
 
-          {tab === 'letgo' && (
+
+{tab === 'letgo' && (
             <div style={cardStyle}>
               <div style={{ fontSize: '20px', marginBottom: '4px' }}>🍂</div>
               <div style={{ ...sectionTitle, color: theme.primary }}>Biggest challenges & things I want to let go</div>
@@ -335,6 +338,10 @@ export default function Journal({ session }) {
                 placeholder="I release..." rows={6} style={textareaStyle} />
             </div>
           )}
+          {tab === 'habits' && (
+            <Habits session={session} theme={theme} />
+          )}
+
 
           <button onClick={saveEntry} disabled={loading} style={{
             width: '100%', padding: '14px', background: theme.primary, color: 'white',
