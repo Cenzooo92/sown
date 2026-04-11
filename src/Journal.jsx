@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Habits from './Habits'
+import Insights from './Insights'
 import { supabase } from './supabase'
 
 const quotes = [
@@ -234,6 +235,7 @@ export default function Journal({ session }) {
             { id: 'great', label: 'Great moments' },
             { id: 'letgo', label: 'Let go' },
             { id: 'habits', label: '🌱 Habits' },
+            { id: 'insights', label: '✦ Insights' },
           ].map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
               flexShrink: 0, padding: '7px 14px', borderRadius: '20px', fontSize: '12px',
@@ -340,6 +342,9 @@ export default function Journal({ session }) {
           )}
           {tab === 'habits' && (
             <Habits session={session} theme={theme} />
+          )}
+          {tab === 'insights' && (
+            <Insights session={session} theme={theme} />
           )}
 
 
