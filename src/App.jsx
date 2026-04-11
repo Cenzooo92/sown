@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 import Auth from './Auth'
 import Journal from './Journal'
+import Success from './Success'
+import Cancel from './Cancel'
 
 function App() {
   const [session, setSession] = useState(null)
@@ -17,6 +19,11 @@ function App() {
       setSession(session)
     })
   }, [])
+
+  const path = window.location.pathname
+
+  if (path === '/success') return <Success />
+  if (path === '/cancel') return <Cancel />
 
   if (loading) return (
     <div style={{
@@ -34,4 +41,3 @@ function App() {
 }
 
 export default App
-
