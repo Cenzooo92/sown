@@ -61,8 +61,11 @@ export default function Journal({ session }) {
         great: existingEntry.great || '',
         letgo: existingEntry.letgo || '',
       })
+      setPhotos({
+        grateful: existingEntry.photos_grateful || [],
+        great: existingEntry.photos_great || [],
+      })
     }
-  }
 
   const saveEntry = async () => {
     setLoading(true)
@@ -80,6 +83,8 @@ export default function Journal({ session }) {
         affirmations: entry.affirmations,
         great: entry.great,
         letgo: entry.letgo,
+        photos_grateful: photos.grateful,
+        photos_great: photos.great,
       }).eq('id', existing.id)
     } else {
       await supabase.from('entries').insert({
@@ -90,6 +95,8 @@ export default function Journal({ session }) {
         affirmations: entry.affirmations,
         great: entry.great,
         letgo: entry.letgo,
+        photos_grateful: photos.grateful,
+        photos_great: photos.great,
       })
       const lastDate = profile?.last_entry_date
       const yesterday = new Date()
