@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
+import { supabase } from './supabase'
 import Habits from './Habits'
 import Insights from './Insights'
 import Upgrade from './Upgrade'
 import History from './History'
-import { supabase } from './supabase'
 
 const quotes = [
   { text: "Gratitude turns what we have into enough.", author: "Melody Beattie" },
@@ -66,6 +66,7 @@ export default function Journal({ session }) {
         great: existingEntry.photos_great || [],
       })
     }
+  }
 
   const saveEntry = async () => {
     setLoading(true)
@@ -102,7 +103,7 @@ export default function Journal({ session }) {
       const yesterday = new Date()
       yesterday.setDate(yesterday.getDate() - 1)
       const yesterdayStr = yesterday.toDateString()
-      
+
       let newStreak
       if (lastDate === yesterdayStr) {
         newStreak = (profile?.streak || 0) + 1
@@ -175,6 +176,7 @@ export default function Journal({ session }) {
     arr[i] = val
     setEntry({ ...entry, affirmations: arr })
   }
+
   const setTheme = async (t) => {
     setProfile(p => ({ ...p, theme: t }))
     await supabase.from('profiles').update({ theme: t }).eq('id', session.user.id)
@@ -248,7 +250,7 @@ export default function Journal({ session }) {
           </div>
         </div>
 
-       <div style={{ display: 'flex', gap: '6px', padding: '0 1.25rem', marginBottom: '1rem', overflowX: 'auto' }}>
+        <div style={{ display: 'flex', gap: '6px', padding: '0 1.25rem', marginBottom: '1rem', overflowX: 'auto' }}>
           {[
             { id: 'grateful', label: 'Grateful' },
             { id: 'accomplish', label: "Today's goals" },
@@ -354,8 +356,7 @@ export default function Journal({ session }) {
             </div>
           )}
 
-
-{tab === 'letgo' && (
+          {tab === 'letgo' && (
             <div style={cardStyle}>
               <div style={{ fontSize: '20px', marginBottom: '4px' }}>🍂</div>
               <div style={{ ...sectionTitle, color: theme.primary }}>Biggest challenges & things I want to let go</div>
@@ -363,28 +364,33 @@ export default function Journal({ session }) {
                 placeholder="I release..." rows={6} style={textareaStyle} />
             </div>
           )}
+
           {tab === 'habits' && (
             <Habits session={session} theme={theme} />
           )}
+
           {tab === 'insights' && (
             <Insights session={session} theme={theme} />
           )}
+
           {tab === 'history' && (
             <History session={session} theme={theme} />
           )}
+
           {tab === 'upgrade' && (
             <Upgrade session={session} theme={theme} />
           )}
 
-
-          <button onClick={saveEntry} disabled={loading} style={{
-            width: '100%', padding: '14px', background: theme.primary, color: 'white',
-            border: 'none', borderRadius: '16px', fontFamily: 'Playfair Display, serif',
-            fontSize: '20px', cursor: 'pointer', marginBottom: '2rem',
-            opacity: loading ? 0.7 : 1
-          }}>
-            {loading ? 'Saving...' : saved ? '✓ Saved!' : 'Save today\'s entry ✦'}
-          </button>
+          {tab !== 'habits' && tab !== 'insights' && tab !== 'history' && tab !== 'upgrade' && (
+            <button onClick={saveEntry} disabled={loading} style={{
+              width: '100%', padding: '14px', background: theme.primary, color: 'white',
+              border: 'none', borderRadius: '16px', fontFamily: 'Playfair Display, serif',
+              fontSize: '20px', cursor: 'pointer', marginBottom: '2rem',
+              opacity: loading ? 0.7 : 1
+            }}>
+              {loading ? 'Saving...' : saved ? '✓ Saved!' : 'Save today\'s entry ✦'}
+            </button>
+          )}
         </div>
       </div>
     </div>
