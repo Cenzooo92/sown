@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import Habits from './Habits'
 import Insights from './Insights'
 import Upgrade from './Upgrade'
+import History from './History'
 import { supabase } from './supabase'
 
 const quotes = [
@@ -90,7 +91,20 @@ export default function Journal({ session }) {
         great: entry.great,
         letgo: entry.letgo,
       })
-      const newStreak = (profile?.streak || 0) + 1
+      const lastDate = profile?.last_entry_date
+      const yesterday = new Date()
+      yesterday.setDate(yesterday.getDate() - 1)
+      const yesterdayStr = yesterday.toDateString()
+      
+      let newStreak
+      if (lastDate === yesterdayStr) {
+        newStreak = (profile?.streak || 0) + 1
+      } else if (lastDate === today) {
+        newStreak = profile?.streak || 1
+      } else {
+        newStreak = 1
+      }
+
       await supabase.from('profiles').update({
         streak: newStreak,
         last_entry_date: today
@@ -154,7 +168,6 @@ export default function Journal({ session }) {
     arr[i] = val
     setEntry({ ...entry, affirmations: arr })
   }
-
   const setTheme = async (t) => {
     setProfile(p => ({ ...p, theme: t }))
     await supabase.from('profiles').update({ theme: t }).eq('id', session.user.id)
@@ -237,6 +250,7 @@ export default function Journal({ session }) {
             { id: 'letgo', label: 'Let go' },
             { id: 'habits', label: '🌱 Habits' },
             { id: 'insights', label: '✦ Insights' },
+            { id: 'history', label: '📖 History' },
             { id: 'upgrade', label: '⭐ Premium' },
           ].map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
@@ -347,6 +361,9 @@ export default function Journal({ session }) {
           )}
           {tab === 'insights' && (
             <Insights session={session} theme={theme} />
+          )}
+          {tab === 'history' && (
+            <History session={session} theme={theme} />
           )}
           {tab === 'upgrade' && (
             <Upgrade session={session} theme={theme} />
