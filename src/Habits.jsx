@@ -3,7 +3,7 @@ import { supabase } from './supabase'
 
 const ICONS = ['🧘','📖','💧','🏃','🥗','😴','✍️','🎯','💪','🌿']
 
-export default function Habits({ session, theme }) {
+export default function Habits({ session, theme, isPremium }) {
   const [habits, setHabits] = useState([])
   const [logs, setLogs] = useState([])
   const [adding, setAdding] = useState(false)
@@ -65,11 +65,11 @@ export default function Habits({ session, theme }) {
 
   const isCompleted = (habitId) => logs.some(l => l.habit_id === habitId)
   const completedCount = habits.filter(h => isCompleted(h.id)).length
+  const canAddHabit = isPremium || habits.length < 3
 
   return (
     <div style={{ padding: '0 1.25rem' }}>
 
-      {/* Progress bar */}
       {habits.length > 0 && (
         <div style={{ marginBottom: '1rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#7A6558', marginBottom: '6px' }}>
@@ -86,7 +86,6 @@ export default function Habits({ session, theme }) {
         </div>
       )}
 
-      {/* Habit list */}
       {habits.map(habit => (
         <div key={habit.id} style={{
           background: 'white', border: `1px solid ${isCompleted(habit.id) ? theme.primary : '#EDE4DC'}`,
@@ -122,7 +121,6 @@ export default function Habits({ session, theme }) {
         </div>
       ))}
 
-      {/* Add habit form */}
       {adding ? (
         <div style={{ background: 'white', border: '1px solid #EDE4DC', borderRadius: '14px', padding: '14px', marginBottom: '8px' }}>
           <div style={{ fontSize: '13px', fontWeight: '600', color: '#7A6558', marginBottom: '10px' }}>Choose an icon</div>
@@ -159,13 +157,17 @@ export default function Habits({ session, theme }) {
             }}>Cancel</button>
           </div>
         </div>
-      ) : (
+      ) : canAddHabit ? (
         <button onClick={() => setAdding(true)} style={{
-          width: '100%', padding: '12px', background: 'transparent', color: theme.primary,
-          border: `1.5px dashed ${theme.primary}`, borderRadius: '14px',
-          fontFamily: 'Playfair Display, serif', fontSize: '17px', cursor: 'pointer',
-          marginBottom: '1rem'
+          width: '100%', padding: '12px', background: theme.primary, color: 'white',
+          border: 'none', borderRadius: '14px', fontFamily: 'Playfair Display, serif',
+          fontSize: '17px', cursor: 'pointer', marginTop: '4px'
         }}>+ Add a habit</button>
+      ) : (
+        <div style={{ background: theme.light, borderRadius: '16px', padding: '1rem', textAlign: 'center', marginTop: '4px' }}>
+          <div style={{ fontSize: '13px', color: theme.primary, fontWeight: '600', marginBottom: '4px' }}>Free plan — 3 habits</div>
+          <div style={{ fontSize: '12px', color: '#7A6558' }}>Upgrade to Premium for unlimited habits</div>
+        </div>
       )}
 
       {habits.length === 0 && !adding && (

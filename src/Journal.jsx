@@ -406,8 +406,8 @@ export default function Journal({ session }) {
             </div>
           )}
 
-          {tab === 'habits' && (
-            <Habits session={session} theme={theme} />
+         {tab === 'habits' && (
+            <Habits session={session} theme={theme} isPremium={profile?.is_premium} />
           )}
 
          {tab === 'insights' && (
