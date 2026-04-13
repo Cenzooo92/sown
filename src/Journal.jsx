@@ -4,6 +4,7 @@ import Habits from './Habits'
 import Insights from './Insights'
 import Upgrade from './Upgrade'
 import History from './History'
+import Goals from './Goals'
 
 const quotes = [
   { text: "Gratitude turns what we have into enough.", author: "Melody Beattie" },
@@ -288,6 +289,7 @@ export default function Journal({ session }) {
             { id: 'letgo', label: 'Let go' },
             { id: 'habits', label: '🌱 Habits' },
             { id: 'insights', label: '✦ Insights' },
+            { id: 'goals', label: '🎯 Goals' },
             { id: 'history', label: '📖 History' },
             { id: 'upgrade', label: '⭐ Premium' },
           ].map(t => (
@@ -401,7 +403,9 @@ export default function Journal({ session }) {
          {tab === 'insights' && (
             <Insights session={session} theme={theme} isPremium={profile?.is_premium} onUpgrade={() => setTab('upgrade')} />
           )}
-
+{tab === 'goals' && (
+            <Goals session={session} theme={theme} isPremium={profile?.is_premium} />
+          )}
           {tab === 'history' && (
             <History session={session} theme={theme} />
           )}
