@@ -398,8 +398,8 @@ export default function Journal({ session }) {
             <Habits session={session} theme={theme} />
           )}
 
-          {tab === 'insights' && (
-            <Insights session={session} theme={theme} />
+         {tab === 'insights' && (
+            <Insights session={session} theme={theme} isPremium={profile?.is_premium} />
           )}
 
           {tab === 'history' && (

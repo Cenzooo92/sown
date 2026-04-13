@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 
-export default function Insights({ session, theme }) {
+export default function Insights({ session, theme, isPremium }) {
   const [insights, setInsights] = useState(null)
   const [loading, setLoading] = useState(false)
   const [entries, setEntries] = useState([])
@@ -74,18 +74,32 @@ Accomplished: ${(e.accomplish || []).join(', ')}
     setLoading(false)
   }
 
+
+  
+  if (!isPremium) return (
+    <div style={{ padding: '0 1.25rem', textAlign: 'center' }}>
+      <div style={{ background: theme.light, borderRadius: '18px', padding: '2rem', marginBottom: '1rem' }}>
+        <div style={{ fontSize: '32px', marginBottom: '8px' }}>✦</div>
+        <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '22px', color: theme.primary, marginBottom: '8px' }}>Premium feature</div>
+        <div style={{ fontSize: '14px', color: '#7A6558', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+          AI coaching insights are available on Sown Premium. Upgrade to unlock personalised patterns from your journal.
+        </div>
+        <button onClick={() => window.location.href = '/?tab=upgrade'} style={{
+          padding: '12px 24px', background: theme.primary, color: 'white',
+          border: 'none', borderRadius: '14px', fontFamily: 'Playfair Display, serif',
+          fontSize: '18px', cursor: 'pointer'
+        }}>Upgrade to Premium ✦</button>
+      </div>
+    </div>
+  )
+
   return (
     <div style={{ padding: '0 1.25rem' }}>
 
       <div style={{ marginBottom: '1rem', fontSize: '13px', color: '#7A6558', lineHeight: 1.6 }}>
         Your AI coach analyses your last 14 journal entries and surfaces patterns you might not notice yourself.
       </div>
-
-      {entries.length > 0 && (
-        <div style={{ background: theme.light, borderRadius: '12px', padding: '10px 14px', marginBottom: '1rem', fontSize: '13px', color: theme.primary, fontWeight: '600' }}>
-          {entries.length} entries analysed · last 14 days
-        </div>
-      )}
+      
 
       {!insights && (
         <button onClick={generateInsights} disabled={loading} style={{
