@@ -5,6 +5,7 @@ import Insights from './Insights'
 import Upgrade from './Upgrade'
 import History from './History'
 import Goals from './Goals'
+import Garden from './Garden'
 
 const quotes = [
   { text: "Gratitude turns what we have into enough.", author: "Melody Beattie" },
@@ -33,6 +34,7 @@ export default function Journal({ session }) {
   const [loading, setLoading] = useState(false)
   const [photos, setPhotos] = useState({ grateful: [], great: [] })
   const [uploading, setUploading] = useState(false)
+  const [showGarden, setShowGarden] = useState(false)
   const gratefulFileRef = useRef(null)
   const greatFileRef = useRef(null)
   const today = new Date().toDateString()
@@ -227,8 +229,16 @@ export default function Journal({ session }) {
     </div>
   )
 
-  return (
+ return (
     <div style={{ background: '#FAF6F0', minHeight: '100vh', fontFamily: 'Nunito, sans-serif' }}>
+     {showGarden && profile && (
+        <Garden
+          theme={theme}
+          streak={profile.streak || 0}
+          isPremium={profile?.is_premium}
+          onClose={() => setShowGarden(false)}
+        />
+      )} 
       <div style={{ maxWidth: '420px', margin: '0 auto' }}>
 
         <div style={{ background: theme.primary, color: 'white', padding: '1.25rem 1.25rem 1rem', borderRadius: '0 0 24px 24px', marginBottom: '1.25rem' }}>
@@ -242,7 +252,7 @@ export default function Journal({ session }) {
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '20px', padding: '6px 12px', fontSize: '13px' }}>
+              <div onClick={() => setShowGarden(true)} style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '20px', padding: '6px 12px', fontSize: '13px', cursor: 'pointer' }}>
                 🔥 {profile.streak} days
               </div>
               <div onClick={signOut} style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '16px', fontFamily: 'Playfair Display, serif' }}>
