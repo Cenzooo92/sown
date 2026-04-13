@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 
-export default function Insights({ session, theme, isPremium }) {
+export default function Insights({ session, theme, isPremium, onUpgrade }) {
   const [insights, setInsights] = useState(null)
   const [loading, setLoading] = useState(false)
   const [entries, setEntries] = useState([])
@@ -84,7 +84,7 @@ Accomplished: ${(e.accomplish || []).join(', ')}
         <div style={{ fontSize: '14px', color: '#7A6558', marginBottom: '1.5rem', lineHeight: 1.6 }}>
           AI coaching insights are available on Sown Premium. Upgrade to unlock personalised patterns from your journal.
         </div>
-        <button onClick={() => window.location.href = '/?tab=upgrade'} style={{
+        <button onClick={() => onUpgrade()} style={{
           padding: '12px 24px', background: theme.primary, color: 'white',
           border: 'none', borderRadius: '14px', fontFamily: 'Playfair Display, serif',
           fontSize: '18px', cursor: 'pointer'

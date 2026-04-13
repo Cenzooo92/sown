@@ -399,7 +399,7 @@ export default function Journal({ session }) {
           )}
 
          {tab === 'insights' && (
-            <Insights session={session} theme={theme} isPremium={profile?.is_premium} />
+            <Insights session={session} theme={theme} isPremium={profile?.is_premium} onUpgrade={() => setTab('upgrade')} />
           )}
 
           {tab === 'history' && (
