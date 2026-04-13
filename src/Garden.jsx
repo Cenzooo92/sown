@@ -72,8 +72,11 @@ export default function Garden({ theme, streak, isPremium, onClose }) {
               }}>
                 <div style={{ fontSize: '22px', marginBottom: '4px' }}>{s.emoji}</div>
                 <div style={{ fontSize: '9px', color: theme.primary, fontWeight: '600', lineHeight: 1.2 }}>
-                  {isLocked ? '🔒' : s.label}
+                  {s.label}
                 </div>
+                {isLocked && (
+                  <div style={{ fontSize: '9px', color: '#C4B8B0' }}>Premium</div>
+                )}
                 <div style={{ fontSize: '8px', color: '#7A6558', marginTop: '2px' }}>
                   Day {s.minDays}+
                 </div>
