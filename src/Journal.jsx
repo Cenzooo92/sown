@@ -7,6 +7,7 @@ import History from './History'
 import Goals from './Goals'
 import Garden from './Garden'
 
+
 const quotes = [
   { text: "Gratitude turns what we have into enough.", author: "Melody Beattie" },
   { text: "Start each day with a grateful heart.", author: "Unknown" },
@@ -40,7 +41,10 @@ export default function Journal({ session }) {
   const today = new Date().toDateString()
   const quote = quotes[new Date().getDate() % quotes.length]
 
-  useEffect(() => { fetchProfile() }, [])
+  useEffect(() => { 
+    fetchProfile()
+    setTimeout(() => subscribeToPush(), 3000)
+  }, [])
 
   const fetchProfile = async () => {
     const { data } = await supabase
@@ -68,6 +72,29 @@ export default function Journal({ session }) {
         grateful: existingEntry.photos_grateful || [],
         great: existingEntry.photos_great || [],
       })
+    }
+  }
+  const subscribeToPush = async () => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return
+    if (Notification.permission === 'denied') return
+    if (Notification.permission === 'granted') return
+
+    try {
+      const permission = await Notification.requestPermission()
+      if (permission !== 'granted') return
+
+      const reg = await navigator.serviceWorker.ready
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY
+      })
+
+      await supabase.from('push_subscriptions').upsert({
+        user_id: session.user.id,
+        subscription: sub.toJSON()
+      }, { onConflict: 'user_id' })
+    } catch (e) {
+      console.log('Push subscription failed:', e)
     }
   }
 
@@ -301,6 +328,7 @@ export default function Journal({ session }) {
             { id: 'insights', label: '✦ Insights' },
             { id: 'goals', label: '🎯 Goals' },
             { id: 'history', label: '📖 History' },
+            { id: 'notifications', label: '🔔 Reminders' },
             { id: 'upgrade', label: '⭐ Premium' },
           ].map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
