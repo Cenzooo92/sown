@@ -275,7 +275,7 @@ if (!profile) return (
     </div>
   )
 
-  if (showProfile && profile) return (
+  if (showProfile) return (
     <Profile
       session={session}
       profile={profile}
