@@ -95,7 +95,7 @@ export default function Journal({ session }) {
       const reg = await navigator.serviceWorker.ready
       console.log('Service worker ready:', reg)
       
-      const rawKey = import.meta.env.VITE_VAPID_PUBLIC_KEY
+      const rawKey = 'BNgx9IlN5_2wGGOGpNoWvwmvPISjVe1QEJVGZ1QdFv59_-aZkMxnEpYLK1m_8r5roI3ZNfSJ9iWG3KKTzA-FucE'
       console.log('VAPID key:', rawKey)
       
       const padding = '='.repeat((4 - rawKey.length % 4) % 4)
