@@ -5,11 +5,18 @@ const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 )
+const vapidPublicKey = process.env.VAPID_PUBLIC_KEY
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY
+const vapidEmail = process.env.VAPID_EMAIL
+
+if (!vapidPublicKey || !vapidPrivateKey || !vapidEmail) {
+  console.log('Missing VAPID keys:', { vapidPublicKey: !!vapidPublicKey, vapidPrivateKey: !!vapidPrivateKey, vapidEmail: !!vapidEmail })
+}
 
 webpush.setVapidDetails(
-  process.env.VAPID_EMAIL,
-  process.env.VITE_VAPID_PUBLIC_KEY,
-  process.env.VAPID_PRIVATE_KEY
+  vapidEmail,
+  vapidPublicKey,
+  vapidPrivateKey
 )
 
 const messages = [
