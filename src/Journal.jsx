@@ -95,9 +95,20 @@ export default function Journal({ session }) {
       const reg = await navigator.serviceWorker.ready
       console.log('Service worker ready:', reg)
       
+      const rawKey = import.meta.env.VITE_VAPID_PUBLIC_KEY
+      console.log('VAPID key:', rawKey)
+      
+      const padding = '='.repeat((4 - rawKey.length % 4) % 4)
+      const base64 = (rawKey + padding).replace(/-/g, '+').replace(/_/g, '/')
+      const rawData = window.atob(base64)
+      const outputArray = new Uint8Array(rawData.length)
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i)
+      }
+
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY
+        applicationServerKey: outputArray
       })
       console.log('Subscription created:', sub)
 
