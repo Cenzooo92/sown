@@ -265,7 +265,7 @@ export default function Journal({ session }) {
     return 'Good evening'
   }
 
-  if (!profile) return (
+if (!profile) return (
     <div style={{
       minHeight: '100vh', display: 'flex', alignItems: 'center',
       justifyContent: 'center', background: '#FAF6F0',
