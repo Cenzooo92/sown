@@ -7,7 +7,6 @@ import History from './History'
 import Goals from './Goals'
 import Garden from './Garden'
 
-
 const quotes = [
   { text: "Gratitude turns what we have into enough.", author: "Melody Beattie" },
   { text: "Start each day with a grateful heart.", author: "Unknown" },
@@ -36,17 +35,12 @@ export default function Journal({ session }) {
   const [photos, setPhotos] = useState({ grateful: [], great: [] })
   const [uploading, setUploading] = useState(false)
   const [showGarden, setShowGarden] = useState(false)
-  const gratefulFileRef = useRef(null)
-  const greatFileRef = useRef(null)
   const today = new Date().toDateString()
   const quote = quotes[new Date().getDate() % quotes.length]
 
-  useEffect(() => { 
+  useEffect(() => {
     fetchProfile()
-    setTimeout(() => {
-      console.log('Attempting push subscription...')
-      subscribeToPush()
-    }, 3000)
+    setTimeout(() => subscribeToPush(), 5000)
   }, [])
 
   const fetchProfile = async () => {
@@ -77,27 +71,18 @@ export default function Journal({ session }) {
       })
     }
   }
+
   const subscribeToPush = async () => {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      console.log('Push not supported')
-      return
-    }
-    if (Notification.permission === 'denied') {
-      console.log('Permission denied')
-      return
-    }
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return
+    if (Notification.permission === 'denied') return
 
     try {
       const permission = await Notification.requestPermission()
-      console.log('Permission result:', permission)
       if (permission !== 'granted') return
 
       const reg = await navigator.serviceWorker.ready
-      console.log('Service worker ready:', reg)
-      
       const rawKey = 'BNgx9IlN5_2wGGOGpNoWvwmvPISjVe1QEJVGZ1QdFv59_-aZkMxnEpYLK1m_8r5roI3ZNfSJ9iWG3KKTzA-FucE'
-      console.log('VAPID key:', rawKey)
-      
+
       const padding = '='.repeat((4 - rawKey.length % 4) % 4)
       const base64 = (rawKey + padding).replace(/-/g, '+').replace(/_/g, '/')
       const rawData = window.atob(base64)
@@ -110,16 +95,13 @@ export default function Journal({ session }) {
         userVisibleOnly: true,
         applicationServerKey: outputArray
       })
-      console.log('Subscription created:', sub)
 
-      const { error } = await supabase.from('push_subscriptions').upsert({
+      await supabase.from('push_subscriptions').insert({
         user_id: session.user.id,
         subscription: sub.toJSON()
-      }, { onConflict: 'user_id' })
-      
-      console.log('Supabase save error:', error)
+      })
     } catch (e) {
-      console.log('Push subscription error:', e)
+      console.log('Push subscription failed:', e)
     }
   }
 
@@ -281,16 +263,16 @@ export default function Journal({ session }) {
     </div>
   )
 
- return (
+  return (
     <div style={{ background: '#FAF6F0', minHeight: '100vh', fontFamily: 'Nunito, sans-serif' }}>
-     {showGarden && profile && (
+      {showGarden && profile && (
         <Garden
           theme={theme}
           streak={profile.streak || 0}
           isPremium={profile?.is_premium}
           onClose={() => setShowGarden(false)}
         />
-      )} 
+      )}
       <div style={{ maxWidth: '420px', margin: '0 auto' }}>
 
         <div style={{ background: theme.primary, color: 'white', padding: '1.25rem 1.25rem 1rem', borderRadius: '0 0 24px 24px', marginBottom: '1.25rem' }}>
@@ -353,7 +335,6 @@ export default function Journal({ session }) {
             { id: 'insights', label: '✦ Insights' },
             { id: 'goals', label: '🎯 Goals' },
             { id: 'history', label: '📖 History' },
-            { id: 'notifications', label: '🔔 Reminders' },
             { id: 'upgrade', label: '⭐ Premium' },
           ].map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
@@ -459,16 +440,18 @@ export default function Journal({ session }) {
             </div>
           )}
 
-         {tab === 'habits' && (
+          {tab === 'habits' && (
             <Habits session={session} theme={theme} isPremium={profile?.is_premium} />
           )}
 
-         {tab === 'insights' && (
+          {tab === 'insights' && (
             <Insights session={session} theme={theme} isPremium={profile?.is_premium} onUpgrade={() => setTab('upgrade')} />
           )}
-{tab === 'goals' && (
+
+          {tab === 'goals' && (
             <Goals session={session} theme={theme} isPremium={profile?.is_premium} />
           )}
+
           {tab === 'history' && (
             <History session={session} theme={theme} />
           )}
@@ -477,7 +460,7 @@ export default function Journal({ session }) {
             <Upgrade session={session} theme={theme} />
           )}
 
-          {tab !== 'habits' && tab !== 'insights' && tab !== 'history' && tab !== 'upgrade' && (
+          {tab !== 'habits' && tab !== 'insights' && tab !== 'history' && tab !== 'upgrade' && tab !== 'goals' && (
             <button onClick={saveEntry} disabled={loading} style={{
               width: '100%', padding: '14px', background: theme.primary, color: 'white',
               border: 'none', borderRadius: '16px', fontFamily: 'Playfair Display, serif',
