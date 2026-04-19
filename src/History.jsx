@@ -104,13 +104,13 @@ export default function History({ session, theme }) {
             alignItems: 'center'
           }}>
             <div style={{ flex: 1 }}>
-  <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '16px', color: '#3D2B1F', marginBottom: '4px' }}>
-                {entry.date}
-              </div>
-              <div style={{ fontSize: '13px', color: '#7A6558' }}>
-                {entry.grateful ? entry.grateful.slice(0, 50) + (entry.grateful.length > 50 ? '...' : '') : 'No entry'}
-              </div>
-            </div>
+  <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '16px', color: '#3D2B1F', marginBottom: '4px', textAlign: 'center' }}>
+    {entry.date}
+  </div>
+  <div style={{ fontSize: '13px', color: '#7A6558', textAlign: 'center' }}>
+    {entry.grateful ? entry.grateful.slice(0, 50) + (entry.grateful.length > 50 ? '...' : '') : 'No entry'}
+  </div>
+</div>
             <div style={{ color: theme.primary, fontSize: '18px' }}>›</div>
           </div>
         ))
