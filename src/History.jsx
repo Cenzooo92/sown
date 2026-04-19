@@ -103,8 +103,8 @@ export default function History({ session, theme }) {
             cursor: 'pointer', display: 'flex', justifyContent: 'space-between',
             alignItems: 'center'
           }}>
-            <div>
-              <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '16px', color: '#3D2B1F', marginBottom: '4px' }}>
+            <div style={{ flex: 1 }}>
+  <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '16px', color: '#3D2B1F', marginBottom: '4px' }}>
                 {entry.date}
               </div>
               <div style={{ fontSize: '13px', color: '#7A6558' }}>
