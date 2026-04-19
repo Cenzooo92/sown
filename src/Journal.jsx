@@ -6,6 +6,7 @@ import Upgrade from './Upgrade'
 import History from './History'
 import Goals from './Goals'
 import Garden from './Garden'
+import Profile from './Profile'
 
 const quotes = [
   { text: "Gratitude turns what we have into enough.", author: "Melody Beattie" },
@@ -35,6 +36,15 @@ export default function Journal({ session }) {
   const [photos, setPhotos] = useState({ grateful: [], great: [] })
   const [uploading, setUploading] = useState(false)
   const [showGarden, setShowGarden] = useState(false)
+  const [showProfile, setShowProfile] = useState(() => {
+    const seen = sessionStorage.getItem('sown_home_seen')
+    return !seen
+  })
+
+  const enterApp = () => {
+    sessionStorage.setItem('sown_home_seen', 'true')
+    setShowProfile(false)
+  }
   const today = new Date().toDateString()
   const quote = quotes[new Date().getDate() % quotes.length]
 
@@ -255,6 +265,16 @@ export default function Journal({ session }) {
     return 'Good evening'
   }
 
+  if (showProfile) return (
+    <Profile
+      session={session}
+      profile={profile}
+      setProfile={setProfile}
+      onEnter={enterApp}
+      theme={theme}
+    />
+  )
+
   if (!profile) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center',
       justifyContent: 'center', background: '#FAF6F0',
@@ -286,6 +306,9 @@ export default function Journal({ session }) {
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div onClick={() => setShowProfile(true)} style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '20px', padding: '6px 12px', fontSize: '13px', cursor: 'pointer' }}>
+                🏠
+              </div>
               <div onClick={() => setShowGarden(true)} style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '20px', padding: '6px 12px', fontSize: '13px', cursor: 'pointer' }}>
                 🔥 {profile.streak} days
               </div>
