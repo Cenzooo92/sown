@@ -43,7 +43,10 @@ export default function Journal({ session }) {
 
   useEffect(() => { 
     fetchProfile()
-    setTimeout(() => subscribeToPush(), 3000)
+    setTimeout(() => {
+      console.log('Attempting push subscription...')
+      subscribeToPush()
+    }, 3000)
   }, [])
 
   const fetchProfile = async () => {
@@ -75,26 +78,37 @@ export default function Journal({ session }) {
     }
   }
   const subscribeToPush = async () => {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return
-    if (Notification.permission === 'denied') return
-    if (Notification.permission === 'granted') return
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      console.log('Push not supported')
+      return
+    }
+    if (Notification.permission === 'denied') {
+      console.log('Permission denied')
+      return
+    }
 
     try {
       const permission = await Notification.requestPermission()
+      console.log('Permission result:', permission)
       if (permission !== 'granted') return
 
       const reg = await navigator.serviceWorker.ready
+      console.log('Service worker ready:', reg)
+      
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY
       })
+      console.log('Subscription created:', sub)
 
-      await supabase.from('push_subscriptions').upsert({
+      const { error } = await supabase.from('push_subscriptions').upsert({
         user_id: session.user.id,
         subscription: sub.toJSON()
       }, { onConflict: 'user_id' })
+      
+      console.log('Supabase save error:', error)
     } catch (e) {
-      console.log('Push subscription failed:', e)
+      console.log('Push subscription error:', e)
     }
   }
 
