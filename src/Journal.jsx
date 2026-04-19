@@ -265,7 +265,17 @@ export default function Journal({ session }) {
     return 'Good evening'
   }
 
-  if (showProfile) return (
+  if (!profile) return (
+    <div style={{
+      minHeight: '100vh', display: 'flex', alignItems: 'center',
+      justifyContent: 'center', background: '#FAF6F0',
+      fontFamily: 'Playfair Display, serif', fontSize: '24px', color: '#C4673A'
+    }}>
+      Sown...
+    </div>
+  )
+
+  if (showProfile && profile) return (
     <Profile
       session={session}
       profile={profile}
@@ -274,14 +284,7 @@ export default function Journal({ session }) {
       theme={theme}
     />
   )
-
-  if (!profile) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center',
-      justifyContent: 'center', background: '#FAF6F0',
-      fontFamily: 'Playfair Display, serif', fontSize: '24px', color: '#C4673A' }}>
-      Sown...
-    </div>
-  )
+  
 
   return (
     <div style={{ background: '#FAF6F0', minHeight: '100vh', fontFamily: 'Nunito, sans-serif' }}>
