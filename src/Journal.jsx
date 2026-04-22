@@ -7,6 +7,7 @@ import History from './History'
 import Goals from './Goals'
 import Garden from './Garden'
 import Profile from './Profile'
+import Onboarding from './Onboarding'
 
 const quotes = [
   { text: "Gratitude turns what we have into enough.", author: "Melody Beattie" },
@@ -562,6 +563,13 @@ if (!profile) return (
     }}>
       Sown...
     </div>
+  )
+
+  if (!profile.onboarding_complete) return (
+    <Onboarding
+      session={session}
+      onComplete={() => setProfile(p => ({ ...p, onboarding_complete: true }))}
+    />
   )
 
   if (showProfile) return (
