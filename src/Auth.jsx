@@ -6,13 +6,13 @@ export default function Auth() {
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [isLogin, setIsLogin] = useState(true)
+  const [isForgot, setIsForgot] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
   const handleAuth = async () => {
     setLoading(true)
     setMessage('')
-
     if (isLogin) {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setMessage(error.message)
@@ -25,6 +25,21 @@ export default function Auth() {
         setMessage('Account created! You can now sign in.')
         setIsLogin(true)
       }
+    }
+    setLoading(false)
+  }
+
+  const handleForgot = async () => {
+    if (!email) { setMessage('Please enter your email address.'); return }
+    setLoading(true)
+    setMessage('')
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://sown-seven.vercel.app'
+    })
+    if (error) {
+      setMessage(error.message)
+    } else {
+      setMessage('Password reset email sent! Check your inbox.')
     }
     setLoading(false)
   }
@@ -46,46 +61,78 @@ export default function Auth() {
           your daily gratitude journal
         </p>
 
-        {!isLogin && (
-          <input
-            placeholder="Your name"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            style={inputStyle}
-          />
+        {isForgot ? (
+          <>
+            <p style={{ fontSize: '13px', color: '#7A6558', marginBottom: '1rem' }}>
+              Enter your email and we'll send you a reset link.
+            </p>
+            <input
+              placeholder="Email"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              style={inputStyle}
+            />
+            {message && (
+              <p style={{ fontSize: '13px', color: '#C4673A', marginBottom: '1rem' }}>{message}</p>
+            )}
+            <button onClick={handleForgot} disabled={loading} style={btnStyle}>
+              {loading ? 'Sending...' : 'Send reset link'}
+            </button>
+            <p style={{ textAlign: 'center', fontSize: '13px', color: '#7A6558', marginTop: '1rem' }}>
+              <span onClick={() => { setIsForgot(false); setMessage('') }}
+                style={{ color: '#C4673A', cursor: 'pointer', fontWeight: '600' }}>
+                Back to sign in
+              </span>
+            </p>
+          </>
+        ) : (
+          <>
+            {!isLogin && (
+              <input
+                placeholder="Your name"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                style={inputStyle}
+              />
+            )}
+            <input
+              placeholder="Email"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              style={inputStyle}
+            />
+            <input
+              placeholder="Password"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              style={inputStyle}
+            />
+            {message && (
+              <p style={{ fontSize: '13px', color: '#C4673A', marginBottom: '1rem' }}>{message}</p>
+            )}
+            <button onClick={handleAuth} disabled={loading} style={btnStyle}>
+              {loading ? 'Please wait...' : isLogin ? 'Sign in' : 'Create account'}
+            </button>
+            {isLogin && (
+              <p style={{ textAlign: 'center', fontSize: '13px', color: '#7A6558', marginTop: '0.75rem' }}>
+                <span onClick={() => { setIsForgot(true); setMessage('') }}
+                  style={{ color: '#C4673A', cursor: 'pointer', fontWeight: '600' }}>
+                  Forgot password?
+                </span>
+              </p>
+            )}
+            <p style={{ textAlign: 'center', fontSize: '13px', color: '#7A6558', marginTop: '0.5rem' }}>
+              {isLogin ? "Don't have an account? " : "Already have an account? "}
+              <span onClick={() => setIsLogin(!isLogin)}
+                style={{ color: '#C4673A', cursor: 'pointer', fontWeight: '600' }}>
+                {isLogin ? 'Sign up' : 'Sign in'}
+              </span>
+            </p>
+          </>
         )}
-        <input
-          placeholder="Email"
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          style={inputStyle}
-        />
-        <input
-          placeholder="Password"
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          style={inputStyle}
-        />
-
-        {message && (
-          <p style={{ fontSize: '13px', color: '#C4673A', marginBottom: '1rem' }}>{message}</p>
-        )}
-
-        <button onClick={handleAuth} disabled={loading} style={btnStyle}>
-          {loading ? 'Please wait...' : isLogin ? 'Sign in' : 'Create account'}
-        </button>
-
-        <p style={{ textAlign: 'center', fontSize: '13px', color: '#7A6558', marginTop: '1rem' }}>
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <span
-            onClick={() => setIsLogin(!isLogin)}
-            style={{ color: '#C4673A', cursor: 'pointer', fontWeight: '600' }}
-          >
-            {isLogin ? 'Sign up' : 'Sign in'}
-          </span>
-        </p>
       </div>
     </div>
   )
